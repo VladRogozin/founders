@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="hacker-card p-4">
+            <h2 class="text-center mb-4 terminal-effect" style="padding-left: 10px;">:Вход в систему_</h2>
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">> Логин:</label>
+                    <input type="text"
+                           class="form-control hacker-form-control"
+                           id="{{ form.username.id_for_label }}"
+                           name="{{ form.username.html_name }}"
+                           required>
+                    <div class="invalid-feedback d-block text-danger">
+                        {{ form.username.errors }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">> Пароль:</label>
+                    <input type="password"
+                           class="form-control hacker-form-control"
+                           id="{{ form.password.id_for_label }}"
+                           name="{{ form.password.html_name }}"
+                           required>
+                    <div class="invalid-feedback d-block text-danger">
+                        {{ form.password.errors }}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn hacker-btn py-2">
+                        > Выполнить вход_
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 text-center">
+                <p class="mb-1">Нет учетной записи?_</p>
+                <a href="{% url 'register' %}" class="hacker-nav-link">Зарегистрироваться_</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hacker-card {
+        background-color: var(--hacker-light);
+        border: 1px solid var(--hacker-green);
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+        from { box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); }
+        to { box-shadow: 0 0 20px rgba(0, 255, 0, 0.6); }
+    }
+
+    .form-label {
+        color: var(--hacker-accent);
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .text-danger {
+        color: #ff5555 !important;
+        text-shadow: 0 0 5px rgba(255, 85, 85, 0.5);
+    }
+</style>
+{% endblock %}

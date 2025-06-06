@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  .hacker-theme {
+    background-color: #0a0a0a;
+    color: #0f0;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 20px;
+  }
+
+  .hacker-theme h2 {
+    color: #0f0;
+    text-shadow: 0 0 5px #0f0;
+    border-bottom: 1px solid #0f0;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+  }
+
+  .upload-container {
+    display: flex;
+    gap: 2rem;
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid #0f0;
+    box-shadow: 0 0 10px #0f0;
+    padding: 20px;
+  }
+
+  .left-panel {
+    width: 50%;
+    border-right: 1px dashed #0f0;
+    padding-right: 1rem;
+  }
+
+  .right-panel {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .visit-btn {
+    padding: 1rem 2rem;
+    background-color: transparent;
+    color: #0f0;
+    border: 1px solid #0f0;
+    border-radius: 0;
+    text-decoration: none;
+    font-size: 1.1rem;
+    box-shadow: 0 0 10px #0f0;
+    transition: all 0.3s;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .visit-btn:hover {
+    background-color: #0f0;
+    color: #000;
+    box-shadow: 0 0 20px #0f0;
+  }
+
+  .file-list {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  .file-list li {
+    margin-bottom: 10px;
+    padding: 5px;
+    border-left: 3px solid #0f0;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .file-link {
+    color: #0f0;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .file-link:hover {
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  .file-block {
+    margin-bottom: 20px;
+  }
+
+  .file-input {
+    color: #0f0;
+    background: transparent;
+    border: 1px dashed #0f0;
+    padding: 10px;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .submit-btn {
+    background: transparent;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.3s;
+  }
+
+  .submit-btn:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 10px #0f0;
+  }
+
+  .error-message {
+    color: #f00;
+    text-shadow: 0 0 5px #f00;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  /* Terminal-like elements */
+  .terminal-line {
+    display: flex;
+    margin-bottom: 5px;
+  }
+
+  .prompt {
+    color: #0f0;
+    margin-right: 10px;
+  }
+
+  /* File type specific styles */
+  .file-html {
+    color: #ff5555;
+  }
+
+  .file-css {
+    color: #8888ff;
+  }
+
+  .file-js {
+    color: #ffff55;
+  }
+
+  .file-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+</style>
+
+<div class="hacker-theme">
+  <div class="terminal-line">
+    <span class="prompt">$</span>
+    <h2>Управление файлами сайта</h2>
+  </div>
+
+  <div class="upload-container">
+    <div class="left-panel">
+      {% if user.userwebsite %}
+        <div class="terminal-line">
+          <span class="prompt">></span>
+          <h3>Уже загруженные файлы:</h3>
+        </div>
+        <ul class="file-list">
+          {% if user.userwebsite.html_file %}
+            <li>
+              <span class="prompt">></span>
+              <img src="https://cdn-icons-png.flaticon.com/512/732/732212.png" class="file-icon" alt="HTML">
+              <span class="file-html">HTML: <a href="{{ user.userwebsite.html_file.url }}" class="file-link file-html">{{ user.userwebsite.html_file.name|cut:"user_sites/html/" }}</a></span>
+            </li>
+          {% endif %}
+          {% if user.userwebsite.css_file %}
+            <li>
+              <span class="prompt">></span>
+              <img src="https://cdn-icons-png.flaticon.com/512/732/732190.png" class="file-icon" alt="CSS">
+              <span class="file-css">CSS: <a href="{{ user.userwebsite.css_file.url }}" class="file-link file-css">{{ user.userwebsite.css_file.name|cut:"user_sites/css/" }}</a></span>
+            </li>
+          {% endif %}
+          {% if user.userwebsite.js_file %}
+            <li>
+              <span class="prompt">></span>
+              <img src="https://cdn-icons-png.flaticon.com/512/5968/5968292.png" class="file-icon" alt="JavaScript">
+              <span class="file-js">JavaScript: <a href="{{ user.userwebsite.js_file.url }}" class="file-link file-js">{{ user.userwebsite.js_file.name|cut:"user_sites/js/" }}</a></span>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+
+      <div class="terminal-line">
+        <span class="prompt">></span>
+        <h3>Загрузить новый файл</h3>
+      </div>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="file-block terminal-line">
+          <span class="prompt">></span>
+          <div>
+            <label for="uploaded_file">Выберите файл (HTML, CSS или JS):</label><br>
+            <input type="file" name="uploaded_file" accept=".html,.css,.js" required class="file-input">
+          </div>
+        </div>
+        <div class="terminal-line">
+          <span class="prompt">></span>
+          <button type="submit" class="submit-btn">Выбрать файл и подгрузить</button>
+        </div>
+      </form>
+
+      {% if error %}
+        <div class="terminal-line">
+          <span class="prompt">!</span>
+          <p class="error-message">{{ error }}</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="right-panel">
+      {% if user.userwebsite and user.userwebsite.html_file %}
+        <a href="{% url 'view_website' %}" class="visit-btn" target="_blank">
+          <span class="terminal-line">
+            <span class="prompt">$</span>
+            <span>Посетить мой веб-сайт</span>
+          </span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

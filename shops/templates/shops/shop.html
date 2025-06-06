@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="skin-store-container">
+    <!-- Текущий скин -->
+    <div class="current-skin-section">
+        <div class="hacker-header">
+            <div>>Текущий скин</div>
+        </div>
+        <div class="skin-display">
+            <img src="{{ avatar_url }}" class="active-skin" alt="Active Skin">
+            <div class="skin-info">
+                <div class="skin-name">[{{ profile.avatar.name|default:"Default Skin" }}]</div>
+                <div class="skin-status">STATUS: <span class="active-status">ACTIVE</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Доступные скины -->
+    <div class="available-skins-section">
+        <div class="hacker-header">
+            <div>>Магазин скинов</div>
+        </div>
+        <div class="skins-grid">
+            {% for skin in all_skins %}
+            <div class="skin-card {% if skin.id == profile.avatar.id %}active-card{% endif %}">
+                <div class="skin-preview">
+                    <img src="{{ skin.image.url }}" alt="{{ skin.name }}">
+                </div>
+                <div class="skin-details">
+                    <div class="skin-name">[{{ skin.name }}]</div>
+                    <div class="skin-price">PRICE: {{ skin.price }}₿</div>
+                </div>
+
+                {% if skin in owned_skins %}
+                    {% if skin.id == profile.avatar.id %}
+                        <button class="hacker-btn skin-btn active-btn" disabled>ACTIVATED</button>
+                    {% else %}
+                        <form method="post" action="{% url 'use_skin' skin.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="hacker-btn skin-btn use-btn">ACTIVATE</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <form method="post" action="{% url 'buy_skin' skin.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="hacker-btn skin-btn buy-btn">PURCHASE [{{ skin.price }}]</button>
+                    </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<style>
+    /* Основные стили магазина */
+    .skin-store-container {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .hacker-header {
+        background-color: var(--hacker-light);
+        border-bottom: 1px solid var(--hacker-green);
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+
+    /* Секция текущего скина */
+    .current-skin-section {
+        flex: 0 0 300px;
+        background-color: var(--hacker-light);
+        border: 1px solid var(--hacker-green);
+        box-shadow: 0 0 10px var(--hacker-glow);
+    }
+
+    .skin-display {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .active-skin {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+
+    .skin-info {
+        text-align: center;
+        width: 100%;
+    }
+
+    .skin-name {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+        color: var(--hacker-accent);
+    }
+
+    .skin-status {
+        font-size: 0.8rem;
+    }
+
+    .active-status {
+        color: #00ff00;
+        text-shadow: 0 0 5px var(--hacker-glow);
+    }
+
+    /* Секция доступных скинов */
+    .available-skins-section {
+        flex: 1;
+        background-color: var(--hacker-light);
+        border: 1px solid var(--hacker-green);
+        box-shadow: 0 0 10px var(--hacker-glow);
+    }
+
+    .skins-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .skin-card {
+        background-color: #0a0a0a;
+        border: 1px solid var(--hacker-green);
+        padding: 15px;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .skin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px var(--hacker-glow);
+    }
+
+    .active-card {
+        border: 1px solid #00ff00;
+        box-shadow: 0 0 15px var(--hacker-glow);
+    }
+
+    .skin-preview {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .skin-preview img {
+        max-width: 100%;
+        height: 120px;
+        object-fit: contain;
+    }
+
+    .skin-details {
+        margin-bottom: 10px;
+        font-size: 0.8rem;
+    }
+
+    .skin-id {
+        color: var(--hacker-accent);
+    }
+
+    .skin-price {
+        color: #ffff00;
+    }
+
+    /* Кнопки */
+    .skin-btn {
+        margin-top: auto;
+        width: 100%;
+        padding: 8px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 0;
+    }
+
+    .use-btn {
+        background-color: rgba(0, 100, 0, 0.3);
+        color: #00ff00;
+    }
+
+    .use-btn:hover {
+        background-color: rgba(0, 100, 0, 0.5);
+    }
+
+    .buy-btn {
+        background-color: rgba(100, 0, 0, 0.3);
+        color: #ff5555;
+    }
+
+    .buy-btn:hover {
+        background-color: rgba(100, 0, 0, 0.5);
+    }
+
+    .active-btn {
+        background-color: rgba(0, 50, 0, 0.5);
+        color: #00aa00;
+        cursor: not-allowed;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 1024px) {
+        .skin-store-container {
+            flex-direction: column;
+        }
+
+        .current-skin-section {
+            flex: 0 0 auto;
+        }
+
+        .skins-grid {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .skins-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+
+        .active-skin {
+            width: 150px;
+            height: 150px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .skin-store-container {
+            padding: 10px;
+        }
+
+        .skins-grid {
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .skin-card {
+            padding: 10px;
+        }
+
+        .skin-preview img {
+            height: 100px;
+        }
+    }
+</style>
+{% endblock %}

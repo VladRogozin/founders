@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid mt-3">
+    <div class="row">
+        <!-- Список заданий -->
+        <div class="col-md-4">
+            <div class="hacker-list-group">
+                <div class="hacker-list-header terminal-effect">> Доступные задания_</div>
+                {% for task in tasks %}
+                    <a href="?task_id={{ task.id }}"
+                       class="hacker-list-item {% if selected_task and selected_task.id == task.id %}active{% endif %}">
+                        > {{ task.title }} [{{ task.get_difficulty_display }}]_
+                    </a>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <!-- Правая часть: Задание / Теория -->
+        <div class="col-md-8">
+            {% if selected_task %}
+                <div class="hacker-task-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h3 class="mb-0">{{ selected_task.title }}_</h3>
+                      <h4 class="mb-0">Награда: {{ selected_task.reward }}₿</h4>
+                    </div>
+                    <div class="hacker-task-meta mb-2">
+                        <span class="hacker-badge">Сложность: {{ selected_task.get_difficulty_display }}</span>
+                    </div>
+
+                    <!-- Кнопки переключения -->
+                    {% if related_theory %}
+                    <div class="mb-3">
+                        <button class="hacker-btn btn-sm" onclick="showTab('task')">Задание</button>
+                        <button class="hacker-btn btn-sm" onclick="showTab('theory')">Теория</button>
+                    </div>
+                    {% endif %}
+
+
+                    <!-- Контейнер Задания -->
+                    <div id="task-tab" class="task-tab container py-3">
+                        <div class="hacker-task-content d-flex flex-column flex-md-row align-items-start gap-3 mb-4">
+                            {% if selected_task.image %}
+                            <div class="hacker-media text-center">
+                                <img src="{{ selected_task.image.url }}"
+                                     class="img-fluid rounded shadow-sm"
+                                     style="max-width: 250px; height: auto;"
+                                     alt="Task Image">
+                            </div>
+                            {% endif %}
+
+                            <div class="hacker-question flex-grow-1">
+                              <pre class="mb-0" style="white-space: pre-wrap;">&gt; {{ selected_task.question }}_</pre>
+                            </div>
+                        </div>
+
+                        {% if selected_task.video %}
+                        <div class="hacker-media mb-3">
+                            <video controls class="w-100 rounded shadow-sm">
+                                <source src="{{ selected_task.video.url }}">
+                                Ваш браузер не поддерживает видео.
+                            </video>
+                        </div>
+                        {% endif %}
+
+                        {% if selected_task.audio %}
+                        <div class="hacker-media mb-3">
+                            <audio controls class="w-100">
+                                <source src="{{ selected_task.audio.url }}">
+                                Ваш браузер не поддерживает аудио.
+                            </audio>
+                        </div>
+                        {% endif %}
+
+                        <hr class="hacker-divider my-4">
+
+                        <div class="hacker-answer-form">
+                            <form method="post">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div class="hacker-form-group mb-3">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="form-error">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" class="hacker-btn hacker-btn-submit">
+                                    &gt; Отправить решение_
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+
+
+            {% if related_theory %}
+            <div id="theory-tab" class="container py-4" style="display: none;">
+                <h4 class="mb-3">&gt; Теория: {{ related_theory.title }}</h4>
+                <div class="row align-items-start">
+                    {% if related_theory.image %}
+                    <div class="col-md-4 mb-3 text-center">
+                        <img src="{{ related_theory.image.url }}"
+                             alt="Theory Image"
+                             class="img-fluid rounded shadow-sm"
+                             style="max-width: 100%; height: auto;">
+                    </div>
+                    {% endif %}
+
+                    <div class="col-md-8">
+                        <!-- Текст с поддержкой разметки -->
+                        <div class="theory-text">
+                            <div>{{ related_theory.text|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+
+
+                </div>
+            {% else %}
+                <div class="hacker-placeholder terminal-effect">
+                    > Выберите задание из списка слева_
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .hacker-list-group {
+        background-color: var(--hacker-light);
+        border: 1px solid var(--hacker-green);
+        border-radius: 0;
+    }
+
+    .hacker-list-header {
+        background-color: rgba(0, 255, 0, 0.1);
+        color: var(--hacker-green);
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--hacker-green);
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .hacker-list-item {
+        display: block;
+        padding: 12px 15px;
+        color: var(--hacker-green);
+        text-decoration: none;
+        border-left: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .hacker-list-item:hover {
+        background-color: rgba(0, 255, 0, 0.05);
+        border-left: 3px solid var(--hacker-green);
+        color: white;
+    }
+
+    .hacker-list-item.active {
+        background-color: rgba(0, 255, 0, 0.1);
+        border-left: 3px solid var(--hacker-green);
+        color: white;
+        font-weight: bold;
+    }
+
+    .hacker-task-container {
+        background-color: var(--hacker-light);
+        border: 1px solid var(--hacker-green);
+        padding: 20px;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+    }
+
+    .hacker-task-meta {
+        margin-bottom: 20px;
+    }
+
+    .hacker-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        background-color: rgba(0, 255, 0, 0.1);
+        color: var(--hacker-green);
+        border: 1px solid var(--hacker-green);
+        font-size: 0.8rem;
+    }
+
+    .hacker-media {
+        margin: 15px 0;
+        border: 1px solid var(--hacker-green);
+        padding: 5px;
+    }
+
+    .hacker-code {
+        background-color: #000;
+        color: var(--hacker-green);
+        padding: 15px;
+        border: 1px solid var(--hacker-green);
+        overflow-x: auto;
+    }
+
+    .hacker-divider {
+        border-color: var(--hacker-green);
+        opacity: 0.3;
+        margin: 25px 0;
+    }
+
+    .hacker-answer-form textarea,
+    .hacker-answer-form input {
+        background-color: var(--hacker-light) !important;
+        color: var(--hacker-green) !important;
+        border: 1px solid var(--hacker-green) !important;
+        font-family: 'Courier New', monospace !important;
+    }
+
+    .hacker-btn-submit {
+        margin-top: 15px;
+        padding: 8px 25px;
+    }
+
+    .hacker-placeholder {
+        background-color: var(--hacker-light);
+        border: 1px dashed var(--hacker-green);
+        padding: 30px;
+        text-align: center;
+        color: var(--hacker-green);
+    }
+
+.theory-text pre {
+    background-color: #f5f5f5;
+    padding: 1em;
+    overflow-x: auto;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+}
+
+.theory-text code {
+    background-color: #f0f0f0;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+
+ .hacker-answer-form input,
+.hacker-answer-form textarea,
+.hacker-answer-form select {
+    background-color: #000;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    font-family: 'Courier New', monospace;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 0;
+    transition: 0.3s;
+}
+
+.hacker-answer-form input:focus,
+.hacker-answer-form textarea:focus,
+.hacker-answer-form select:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+    border-color: white;
+}
+
+.hacker-answer-form label {
+    color: #00ff00;
+    margin-bottom: 0.25rem;
+    display: block;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.form-error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+</style>
+
+<!-- JS для переключения вкладок -->
+<script>
+    function showTab(tab) {
+        document.getElementById('task-tab').style.display = (tab === 'task') ? 'block' : 'none';
+        document.getElementById('theory-tab').style.display = (tab === 'theory') ? 'block' : 'none';
+    }
+</script>
+
+
+
+{% endblock %}

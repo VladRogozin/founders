@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>{% block title %}root@server:~#{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+    <style>
+        :root {
+            --hacker-green: #00ff00;
+            --hacker-dark: #121212;
+            --hacker-light: #1a1a1a;
+            --hacker-accent: #00cc00;
+            --hacker-glow: rgba(0, 255, 0, 0.7);
+        }
+
+        body {
+            background-color: var(--hacker-dark);
+            color: var(--hacker-green);
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .hacker-navbar {
+            background-color: var(--hacker-light) !important;
+            border-bottom: 1px solid var(--hacker-green);
+            padding: 0.5rem 0.5rem;
+        }
+
+        .hacker-nav-link {
+            color: var(--hacker-green) !important;
+            margin: 0 0.25rem;
+            padding: 0.5rem 0.75rem;
+            position: relative;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 576px) {
+            .hacker-nav-link {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+                margin: 0;
+            }
+        }
+
+        .hacker-nav-link:hover,
+        .hacker-nav-link:focus {
+            color: white !important;
+            text-shadow: 0 0 5px var(--hacker-glow);
+        }
+
+        .hacker-nav-link::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--hacker-green);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .hacker-nav-link:hover::before {
+            transform: scaleX(1);
+        }
+
+        .hacker-btn {
+            background-color: transparent;
+            color: var(--hacker-green);
+            border: 1px solid var(--hacker-green);
+            border-radius: 0;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 576px) {
+            .hacker-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        .hacker-btn:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 10px var(--hacker-glow);
+            color: white;
+            border-color: white;
+        }
+
+        .hacker-dropdown {
+            background-color: var(--hacker-light);
+            border: 1px solid var(--hacker-green);
+        }
+
+        .hacker-dropdown-item {
+            color: var(--hacker-green);
+            padding: 0.5rem 1rem;
+        }
+
+        .hacker-dropdown-item:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+            color: white;
+        }
+
+        .dropdown-divider {
+            border-color: var(--hacker-green);
+            opacity: 0.3;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(0, 0, 0, 0) 50%,
+                rgba(0, 255, 0, 0.05) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .terminal-effect {
+            border-left: 2px solid var(--hacker-green);
+            animation: blink 1s step-end infinite;
+            padding-left: 10px;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .terminal-effect {
+                font-size: 0.9rem;
+                padding-left: 8px;
+            }
+        }
+
+        @keyframes blink {
+            from, to { border-color: transparent }
+            50% { border-color: var(--hacker-green) }
+        }
+
+        /* Улучшения для мобильных устройств */
+        .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
+        /* Навигационное меню для мобильных */
+        .navbar-collapse {
+            padding-top: 10px;
+        }
+
+        /* Футер для мобильных */
+        footer {
+            font-size: 0.85rem;
+            padding: 10px 0;
+        }
+
+        /* Основное содержимое */
+        main {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* Кнопка меню */
+        .navbar-toggler {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .navbar-toggler-icon {
+            width: 1.25em;
+            height: 1.25em;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div class="scanlines"></div>
+
+    <nav class="navbar navbar-expand-lg hacker-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand terminal-effect" href="/">
+                root@server:~#
+            </a>
+
+            <button class="navbar-toggler hacker-btn" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link hacker-nav-link" href="{% url 'shop' %}">Магазин</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link hacker-nav-link" href="{% url 'task_list' %}">Задание</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link hacker-nav-link" href="{% url 'upload_website' %}">Мой сайт</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex flex-wrap justify-content-end">
+                    {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <button class="btn hacker-btn dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Профиль
+                        </button>
+                        <ul class="dropdown-menu hacker-dropdown dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item hacker-dropdown-item" href="{% url 'profile' %}">Мой профиль</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item hacker-dropdown-item" href="{% url 'logout' %}">Выход</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn hacker-btn me-2 mb-2 mb-md-0">Вход</a>
+                    <a href="{% url 'register' %}" class="btn hacker-btn">Регистрация</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container flex-grow-1 mb-4">
+        {% block content %}
+        <!-- Тут будет содержимое страниц -->
+        {% endblock %}
+    </main>
+
+    <footer class="hacker-navbar py-3 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 root@server:~#</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- PrismJS сам по себе -->
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+
+<!-- Подключение нужного языка (JavaScript) -->
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+    <script>
+        // Эффект печатающегося текста
+        const phrases = ["Добро пожаловать в систему", "Доступ разрешён", "Подключение установлено"];
+        let currentPhrase = 0;
+        let currentChar = 0;
+        let isDeleting = false;
+        let isEnd = false;
+
+        function typeWriter() {
+            const typingElement = document.getElementById('typing-effect');
+            if (typingElement) {
+                const currentText = phrases[currentPhrase];
+
+                if (isDeleting) {
+                    typingElement.textContent = currentText.substring(0, currentChar - 1);
+                    currentChar--;
+                } else {
+                    typingElement.textContent = currentText.substring(0, currentChar + 1);
+                    currentChar++;
+                }
+
+                if (!isDeleting && currentChar === currentText.length) {
+                    isEnd = true;
+                    setTimeout(() => { isDeleting = true; }, 2000);
+                } else if (isDeleting && currentChar === 0) {
+                    isDeleting = false;
+                    currentPhrase = (currentPhrase + 1) % phrases.length;
+                }
+
+                const speed = isDeleting ? 50 : 100;
+                setTimeout(typeWriter, isEnd ? 1000 : speed);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(typeWriter, 1000);
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

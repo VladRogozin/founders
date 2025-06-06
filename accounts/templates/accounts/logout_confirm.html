@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="hacker-card p-4 text-center" id="logout-container">
+            <h2 class="terminal-effect mb-4">> Подтверждение выхода_</h2>
+
+            <p class="mb-4">> Вы уверены, что хотите завершить сеанс?_</p>
+
+            <div class="d-flex justify-content-center gap-3">
+                <form method="post" action="{% url 'logout' %}" id="logout-form" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn hacker-btn-danger px-4">
+
+                        > Да, завершить_
+                    </button>
+                </form>
+
+                <a href="{% url 'profile' %}" class="btn hacker-btn px-4">
+                    > Отмена_
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hacker-btn-danger {
+        background-color: transparent;
+        color: #ff5555;
+        border: 1px solid #ff5555;
+        border-radius: 0;
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .hacker-btn-danger:hover {
+        background-color: rgba(255, 85, 85, 0.1);
+        box-shadow: 0 0 15px rgba(255, 85, 85, 0.5);
+        color: white;
+    }
+
+    #logout-container {
+        animation: terminal-flicker 0.1s infinite alternate;
+    }
+
+    @keyframes terminal-flicker {
+        0% { opacity: 0.9; }
+        100% { opacity: 1; }
+    }
+
+    .logout-animation {
+        animation: terminal-flicker 0.5s infinite alternate;
+    }
+
+    .progress-bar {
+        height: 2px;
+        background: linear-gradient(90deg, #ff5555 0%, #00ff00 100%);
+        width: 0%;
+        transition: width 2s ease-out;
+    }
+</style>
+
+<script>
+</script>
+{% endblock %}
