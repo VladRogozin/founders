@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00ffcc;
+      --primary-dark: #00ccaa;
+      --bg: #0d0d0d;
+      --card-bg: #111;
+      --text: #e0e0e0;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .tech-font {
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    header {
+      text-align: center;
+      padding: 120px 20px;
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                  url('https://images.unsplash.com/photo-1535223289827-42f1e9919769?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(transparent, var(--bg));
+      z-index: 1;
+    }
+    .teg_p {
+      color: #f5f5f5;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      margin-bottom: 20px;
+      font-weight: 700;
+      background: linear-gradient(45deg, var(--primary), #00ffaa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: none;
+      line-height: 1.2;
+    }
+
+
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header-subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    h2 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: var(--primary);
+    }
+
+    .section {
+      padding: 100px 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .section:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 255, 204, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid rgba(0, 255, 204, 0.1);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 255, 204, 0.1);
+    }
+
+    .img-container {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .img-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.5s;
+    }
+
+    .img-container:hover img {
+      transform: scale(1.03);
+    }
+
+    .button {
+      background: var(--primary);
+      color: #000;
+      padding: 16px 32px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 20px;
+      display: inline-block;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 6px 20px rgba(0, 255, 204, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .button:hover::after {
+      left: 100%;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      flex: 1;
+    }
+
+    footer {
+      text-align: center;
+      padding: 50px 20px;
+      background: #111;
+      font-size: 0.9em;
+      color: #666;
+      border-top: 1px solid rgba(0, 255, 204, 0.1);
+    }
+
+    /* Анимации */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      header {
+        padding: 80px 20px;
+      }
+
+      .section {
+        padding: 60px 20px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <header>
+      <div class="header-content">
+        <h1 class="tech-font animate">Founders: Клуб юных исследователей</h1>
+        <p class="header-subtitle animate delay-1 teg_p">
+          Учим детей наукам, программированию и логике через увлекательные задания и игровые миссии
+        </p>
+        <a href="{% url 'register' %}" class="button animate delay-2">Присоединиться</a>
+      </div>
+
+  </header>
+
+  <section class="section">
+    <div class="card animate">
+      <h2>О клубе Founders</h2>
+      <p class="teg_p">
+      Привет, юный исследователь! 👋 Добро пожаловать в клуб Founders — секретную базу, где начинается твоё большое приключение в мире наук. Здесь ты будешь выполнять захватывающие миссии, разгадывать кодовые задания и открывать тайны программирования, математики, биологии, физики и других удивительных наук. Готов стать героем знаний? Тогда вперёд — на задание!
+      </p>
+
+      <div class="img-container" style="margin-top: 30px;">
+        <img src="https://progorod76.ru/userfiles/picfullsize/image-1744375446_1377.jpg" alt="Миссия: обучение">
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="animate">Что ты изучишь?</h2>
+    <div class="features-grid">
+      <div class="feature-item animate delay-1">
+        <span class="feature-icon">💻</span>
+        <div class="feature-text">
+          <h3>Программирование</h3>
+          <p class="teg_p">HTML, CSS, JavaScript, Python и другие языки через практические задания</p>
+        </div>
+      </div>
+
+      <div class="feature-item animate delay-2">
+        <span class="feature-icon">➗</span>
+        <div class="feature-text">
+          <h3>Математика</h3>
+          <p class="teg_p">Головоломки, логические задачи, алгоритмы и криптография</p>
+        </div>
+      </div>
+
+      <div class="feature-item animate delay-1">
+        <span class="feature-icon">🔬</span>
+        <div class="feature-text">
+          <h3>Естественные науки</h3>
+          <p class="teg_p">Биология, химия, физика через интерактивные эксперименты</p>
+        </div>
+      </div>
+
+      <div class="feature-item animate delay-2">
+        <span class="feature-icon">📚</span>
+        <div class="feature-text">
+          <h3>Научные факты</h3>
+          <p class="teg_p">Удивительные открытия и современные исследования в IT и науке</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="card animate">
+      <h2>Геймификация</h2>
+      <p class="teg_p">Наша платформа использует элементы геймдизайна для максимального вовлечения:</p>
+      <ul style="margin-top: 20px;">
+        <li class="teg_p">🎯 Система уровней и прогресса</li>
+        <li class="teg_p">🏆 Достижения и значки за выполнение миссий</li>
+        <li class="teg_p">📊 Личный кабинет с отслеживанием результатов</li>
+        <li class="teg_p">👥 Рейтинги и соревнования</li>
+      </ul>
+      <div class="img-container" style="margin-top: 30px;">
+        <img src="https://img.pikbest.com/illustration/20250211/gamer-playing-with-the-computer_11518026.jpg!w700wp" alt="Прогресс агента">
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="join">
+    <div class="card animate" style="text-align: center;">
+      <h2>Присоединяйся к миссии</h2>
+      <p style="font-size: 1.2rem; margin-bottom: 30px;" class="teg_p">Готов начать своё приключение в мире знаний и технологий?</p>
+      <a href="{% url 'register' %}" class="button">Зарегистрироваться</a>
+    </div>
+  </section>
+
+
+  <script>
+    // Простая анимация при скролле
+    document.addEventListener('DOMContentLoaded', () => {
+      const animateElements = document.querySelectorAll('.animate');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, { threshold: 0.1 });
+
+      animateElements.forEach(el => {
+        el.style.opacity = 0;
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+      });
+    });
+  </script>
+{% endblock %}

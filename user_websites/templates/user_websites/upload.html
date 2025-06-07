@@ -9,7 +9,7 @@
     background-color: #0a0a0a;
     color: #0f0;
     font-family: 'Share Tech Mono', monospace;
-    padding: 20px;
+    padding: 15px;
   }
 
   .hacker-theme h2 {
@@ -17,42 +17,83 @@
     text-shadow: 0 0 5px #0f0;
     border-bottom: 1px solid #0f0;
     padding-bottom: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
   }
 
   .upload-container {
     display: flex;
-    gap: 2rem;
+    flex-direction: column;
+    gap: 1.5rem;
     background: rgba(10, 10, 10, 0.8);
     border: 1px solid #0f0;
     box-shadow: 0 0 10px #0f0;
-    padding: 20px;
+    padding: 15px;
+  }
+
+  @media (min-width: 768px) {
+    .upload-container {
+      flex-direction: row;
+      gap: 2rem;
+      padding: 20px;
+    }
   }
 
   .left-panel {
-    width: 50%;
-    border-right: 1px dashed #0f0;
-    padding-right: 1rem;
+    width: 100%;
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px dashed #0f0;
+    padding-bottom: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .left-panel {
+      width: 50%;
+      border-right: 1px dashed #0f0;
+      border-bottom: none;
+      padding-right: 1rem;
+      padding-bottom: 0;
+    }
   }
 
   .right-panel {
-    width: 50%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-top: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .right-panel {
+      width: 50%;
+      padding-top: 0;
+    }
   }
 
   .visit-btn {
-    padding: 1rem 2rem;
+    padding: 0.8rem 1.5rem;
     background-color: transparent;
     color: #0f0;
     border: 1px solid #0f0;
     border-radius: 0;
     text-decoration: none;
-    font-size: 1.1rem;
+    font-size: 1rem;
     box-shadow: 0 0 10px #0f0;
     transition: all 0.3s;
     font-family: 'Share Tech Mono', monospace;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .visit-btn {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      width: auto;
+    }
   }
 
   .visit-btn:hover {
@@ -64,6 +105,7 @@
   .file-list {
     list-style-type: none;
     padding-left: 0;
+    margin-top: 1rem;
   }
 
   .file-list li {
@@ -74,6 +116,15 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 0.9rem;
+    word-break: break-all;
+  }
+
+  @media (min-width: 768px) {
+    .file-list li {
+      font-size: 1rem;
+      word-break: normal;
+    }
   }
 
   .file-link {
@@ -87,26 +138,44 @@
   }
 
   .file-block {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
 
   .file-input {
     color: #0f0;
     background: transparent;
     border: 1px dashed #0f0;
-    padding: 10px;
+    padding: 8px;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 8px;
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 768px) {
+    .file-input {
+      padding: 10px;
+      font-size: 1rem;
+    }
   }
 
   .submit-btn {
     background: transparent;
     color: #0f0;
     border: 1px solid #0f0;
-    padding: 10px 20px;
+    padding: 8px 15px;
     cursor: pointer;
     font-family: 'Share Tech Mono', monospace;
     transition: all 0.3s;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .submit-btn {
+      padding: 10px 20px;
+      font-size: 1rem;
+      width: auto;
+    }
   }
 
   .submit-btn:hover {
@@ -119,6 +188,7 @@
     color: #f00;
     text-shadow: 0 0 5px #f00;
     animation: blink 1s infinite;
+    font-size: 0.9rem;
   }
 
   @keyframes blink {
@@ -131,11 +201,14 @@
   .terminal-line {
     display: flex;
     margin-bottom: 5px;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .prompt {
     color: #0f0;
-    margin-right: 10px;
+    margin-right: 8px;
+    flex-shrink: 0;
   }
 
   /* File type specific styles */
@@ -152,9 +225,27 @@
   }
 
   .file-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .file-icon {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  label {
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 768px) {
+    label {
+      font-size: 1rem;
+    }
   }
 </style>
 
@@ -195,20 +286,24 @@
           {% endif %}
         </ul>
       {% endif %}
+    <br>
+    <br>
 
       <div class="terminal-line">
         <span class="prompt">></span>
         <h3>Загрузить новый файл</h3>
       </div>
+          <br>
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="file-block terminal-line">
           <span class="prompt">></span>
-          <div>
+          <div style="flex: 1;">
             <label for="uploaded_file">Выберите файл (HTML, CSS или JS):</label><br>
             <input type="file" name="uploaded_file" accept=".html,.css,.js" required class="file-input">
           </div>
         </div>
+            <br>
         <div class="terminal-line">
           <span class="prompt">></span>
           <button type="submit" class="submit-btn">Выбрать файл и подгрузить</button>
@@ -222,7 +317,9 @@
         </div>
       {% endif %}
     </div>
-
+    <br>
+    <br>
+    <br>
     <div class="right-panel">
       {% if user.userwebsite and user.userwebsite.html_file %}
         <a href="{% url 'view_website' %}" class="visit-btn" target="_blank">

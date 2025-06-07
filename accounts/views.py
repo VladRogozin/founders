@@ -80,3 +80,7 @@ def logout_confirm(request):
         return redirect('login')
     # Иначе показываем страницу подтверждения
     return render(request, 'accounts/logout_confirm.html')
+
+def lending_page(request):
+    return render(request, 'accounts/lending_page.html')
+
