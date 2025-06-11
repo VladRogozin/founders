@@ -322,7 +322,7 @@
     <br>
     <div class="right-panel">
       {% if user.userwebsite and user.userwebsite.html_file %}
-        <a href="{% url 'view_website' %}" class="visit-btn" target="_blank">
+        <a href="{% url 'view_website' username=request.user.username %}" class="visit-btn" target="_blank">
           <span class="terminal-line">
             <span class="prompt">$</span>
             <span>Посетить мой веб-сайт</span>

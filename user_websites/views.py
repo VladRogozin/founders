@@ -68,22 +68,23 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from bs4 import BeautifulSoup
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
-@login_required
-def view_website(request):
+def view_website(request, username):
+    user = get_object_or_404(User, username=username)
+
     try:
-        website = request.user.userwebsite
+        website = user.userwebsite
     except UserWebsite.DoesNotExist:
-        return HttpResponse("У вас пока нет загруженного сайта.")
+        return HttpResponse("У пользователя пока нет загруженного сайта.")
 
-    html_content = website.html_file.read().decode('utf-8')
-    css_content = website.css_file.read().decode('utf-8')
-    js_content = website.js_file.read().decode('utf-8')
+    html_content = website.html_file.read().decode('utf-8') if website.html_file else "<html><body>Нет HTML</body></html>"
+    css_content = website.css_file.read().decode('utf-8') if website.css_file else ""
+    js_content = website.js_file.read().decode('utf-8') if website.js_file else ""
 
-    # Используем BeautifulSoup для модификации HTML
     soup = BeautifulSoup(html_content, 'html.parser')
 
-    # Вставляем CSS в <head>
     if soup.head is None:
         soup.head = soup.new_tag('head')
         soup.html.insert(0, soup.head)
@@ -92,7 +93,6 @@ def view_website(request):
     style_tag.string = css_content
     soup.head.append(style_tag)
 
-    # Вставляем JS в конец <body>
     if soup.body is None:
         soup.body = soup.new_tag('body')
         soup.html.append(soup.body)
@@ -101,7 +101,6 @@ def view_website(request):
     script_tag.string = js_content
     soup.body.append(script_tag)
 
-    # Возвращаем сгенерированный HTML как полноценный ответ
     return HttpResponse(str(soup), content_type='text/html')
 
 
