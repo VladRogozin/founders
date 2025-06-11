@@ -40,13 +40,11 @@ class NotificationAdmin(admin.ModelAdmin):
         if not change:  # создаётся новая запись
             if obj.is_accepted:
                 profile.points += obj.task.reward
-                profile.coins += obj.task.reward
                 profile.save()
         else:
             old_obj = Notification.objects.get(pk=obj.pk)
             if obj.is_accepted and not old_obj.is_accepted:
                 profile.points += obj.task.reward
-                profile.coins += obj.task.reward
                 profile.save()
             elif not obj.is_accepted and old_obj.is_accepted:
                 # обратное списание, если нужно

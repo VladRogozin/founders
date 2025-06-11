@@ -6,6 +6,14 @@ from .models import Task
 from .forms import TaskAnswerForm
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
+from .models import Task, TaskAnswer
+from .forms import TaskAnswerForm
+
 @login_required
 def task_list(request):
     tasks = Task.objects.all()
@@ -21,13 +29,18 @@ def task_list(request):
                 answer.user = request.user
                 answer.task = selected_task
                 answer.save()
-                # Перенаправление на ту же задачу
                 url = reverse('task_list') + f'?task_id={selected_task.id}'
                 return HttpResponseRedirect(url)
         else:
             form = TaskAnswerForm()
 
-    # Получаем связанную теорию, если есть
+    # Получаем список id заданий, которые пользователь уже выполнил (с подтверждённым ответом)
+    completed_task_ids = TaskAnswer.objects.filter(
+        user=request.user,
+        is_accepted=True
+    ).values_list('task_id', flat=True).distinct()
+
+    # Связанная теория для выбранного задания
     related_theory = selected_task.theory if selected_task and selected_task.theory else None
 
     return render(request, 'tasks/task_list.html', {
@@ -35,4 +48,10 @@ def task_list(request):
         'selected_task': selected_task,
         'form': form,
         'related_theory': related_theory,
+        'completed_task_ids': completed_task_ids,
     })
+
+
+def pentagon(request):
+    return render(request, 'tasks/pentagon_page.html')
+

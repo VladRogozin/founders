@@ -9,11 +9,15 @@
                 {% for task in tasks %}
                     <a href="?task_id={{ task.id }}"
                        class="hacker-list-item {% if selected_task and selected_task.id == task.id %}active{% endif %}">
-                        > {{ task.title }} [{{ task.get_difficulty_display }}]_
+                        > {{ task.title }} [{{ task.get_difficulty_display }}]
+                        {% if task.id in completed_task_ids %}
+                            <span class="hacker-btn">Выполнено</span>
+                        {% else %}
+                            <span class="hacker-btn-danger">Не выполнено</span>
+                        {% endif %}
                     </a>
                 {% endfor %}
             </div>
-
         </div>
 
         <!-- Правая часть: Задание / Теория -->
