@@ -48,34 +48,38 @@ from django.apps import apps
 def buy_item(request, model_name, item_id):
     profile = request.user.profile
 
-    # Ограничим доступ к только разрешённым моделям
-    allowed_models = {
-        'avataritem': 'shops.AvatarItem',
-        'computeritem': 'shops.ComputerItem',
+    # Словарь соответствий model_name и реальных имен полей
+    model_mapping = {
+        'avataritem': {
+            'model': 'shops.AvatarItem',
+            'owned_field': 'owned_skins'
+        },
+        'computeritem': {
+            'model': 'shops.ComputerItem',
+            'owned_field': 'owned_computeritems'
+        }
     }
 
-    model_path = allowed_models.get(model_name.lower())
-    if not model_path:
+    model_info = model_mapping.get(model_name.lower())
+    if not model_info:
         messages.error(request, "Неверный тип товара.")
         return redirect('shop')
 
-    ModelClass = apps.get_model(*model_path.split('.'))
+    ModelClass = apps.get_model(*model_info['model'].split('.'))
     item = get_object_or_404(ModelClass, id=item_id)
 
-    owned_field_name = f"owned_{model_name.lower()}s"
-    if hasattr(profile, owned_field_name):
-        owned_items = getattr(profile, owned_field_name).all()
-        if item in owned_items:
-            messages.info(request, "Уже куплено.")
-        elif profile.coins >= item.price:
-            profile.coins -= item.price
-            getattr(profile, owned_field_name).add(item)
-            profile.save()
-            messages.success(request, "Покупка успешна.")
-        else:
-            messages.error(request, "Недостаточно монет.")
+    owned_field_name = model_info['owned_field']
+    owned_items = getattr(profile, owned_field_name).all()
+
+    if item in owned_items:
+        messages.info(request, "Уже куплено.")
+    elif profile.coins >= item.price:
+        profile.coins -= item.price
+        getattr(profile, owned_field_name).add(item)
+        profile.save()
+        messages.success(request, "Покупка успешна.")
     else:
-        messages.error(request, "Покупка невозможна.")
+        messages.error(request, "Недостаточно монет.")
 
     return redirect('shop')
 
