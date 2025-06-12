@@ -3,28 +3,47 @@
 
 {% block content %}
 <div class="skin-store-container">
-    <!-- Текущий скин -->
+    <!-- Левая панель: текущий скин и компьютер -->
+    <!-- Левая панель: текущий скин и компьютер -->
     <div class="current-skin-section">
         <div class="hacker-header">
             <div>>Текущий скин</div>
         </div>
-        <div class="skin-display">
-            <img src="{{ avatar_url }}" class="active-skin" alt="Active Skin">
+        <div class="character-computer-container">
+            {% if profile.active_computer %}
+            <div class="computer-container">
+                <img src="{{ profile.active_computer.image.url }}" class="active-computer" alt="Active Computer">
+            </div>
+            {% endif %}
+
+            <div class="character-container">
+                <img src="{{ avatar_url }}" class="active-skin" alt="Active Skin">
+            </div>
+        </div>
+
+        <div class="items-info">
             <div class="skin-info">
-                <div class="skin-name">[{{ profile.avatar.name|default:"Default Skin" }}]</div>
+                <div class="skin-name">[{{ profile.active_skin.name|default:"Default Skin" }}]</div>
                 <div class="skin-status">STATUS: <span class="active-status">ACTIVE</span></div>
             </div>
+
+            {% if profile.active_computer %}
+            <div class="computer-info">
+                <div class="skin-name">[{{ profile.active_computer.name }}]</div>
+                <div class="skin-status">STATUS: <span class="active-status">ACTIVE</span></div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Доступные скины -->
+    <!-- Правая панель: магазин скинов -->
     <div class="available-skins-section">
         <div class="hacker-header">
             <div>>Магазин скинов</div>
         </div>
         <div class="skins-grid">
             {% for skin in all_skins %}
-            <div class="skin-card {% if skin.id == profile.avatar.id %}active-card{% endif %}">
+            <div class="skin-card {% if profile.active_skin and skin.id == profile.active_skin.id %}active-card{% endif %}">
                 <div class="skin-preview">
                     <img src="{{ skin.image.url }}" alt="{{ skin.name }}">
                 </div>
@@ -34,16 +53,16 @@
                 </div>
 
                 {% if skin in owned_skins %}
-                    {% if skin.id == profile.avatar.id %}
+                    {% if profile.active_skin and skin.id == profile.active_skin.id %}
                         <button class="hacker-btn skin-btn active-btn" disabled>ACTIVATED</button>
                     {% else %}
-                        <form method="post" action="{% url 'use_skin' skin.id %}">
+                        <form method="post" action="{% url 'use_item' 'avataritem' skin.id %}">
                             {% csrf_token %}
                             <button type="submit" class="hacker-btn skin-btn use-btn">ACTIVATE</button>
                         </form>
                     {% endif %}
                 {% else %}
-                    <form method="post" action="{% url 'buy_skin' skin.id %}">
+                    <form method="post" action="{% url 'buy_item' 'avataritem' skin.id %}">
                         {% csrf_token %}
                         <button type="submit" class="hacker-btn skin-btn buy-btn">PURCHASE [{{ skin.price }}]</button>
                     </form>
@@ -51,9 +70,42 @@
             </div>
             {% endfor %}
         </div>
+
+        <!-- Магазин компьютеров -->
+        <div class="hacker-header" style="margin-top: 30px;">
+            <div>>Магазин компьютеров</div>
+        </div>
+        <div class="skins-grid">
+            {% for computer in all_computers %}
+            <div class="skin-card {% if profile.active_computer and computer.id == profile.active_computer.id %}active-card{% endif %}">
+                <div class="skin-preview">
+                    <img src="{{ computer.image.url }}" alt="{{ computer.name }}">
+                </div>
+                <div class="skin-details">
+                    <div class="skin-name">[{{ computer.name }}]</div>
+                    <div class="skin-price">PRICE: {{ computer.price }}₿</div>
+                </div>
+
+                {% if computer in owned_computers %}
+                    {% if profile.active_computer and computer.id == profile.active_computer.id %}
+                        <button class="hacker-btn skin-btn active-btn" disabled>ACTIVATED</button>
+                    {% else %}
+                        <form method="post" action="{% url 'use_item' 'computeritem' computer.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="hacker-btn skin-btn use-btn">ACTIVATE</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <form method="post" action="{% url 'buy_item' 'computeritem' computer.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="hacker-btn skin-btn buy-btn">PURCHASE [{{ computer.price }}]</button>
+                    </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
-
 
 <style>
     /* Основные стили магазина */
@@ -77,29 +129,57 @@
 
     /* Секция текущего скина */
     .current-skin-section {
-        flex: 0 0 300px;
+        flex: 0 0 350px;
         background-color: var(--hacker-light);
         border: 1px solid var(--hacker-green);
         box-shadow: 0 0 10px var(--hacker-glow);
     }
 
-    .skin-display {
-        padding: 20px;
+    .character-computer-container {
+        position: relative;
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        justify-content: center;
+        align-items: flex-end;
+        height: 220px;
+        padding: 20px;
+    }
+
+    .computer-container {
+        position: absolute;
+        left: 20px;
+        bottom: 0;
+        z-index: 1;
+    }
+
+    .character-container {
+        position: relative;
+        z-index: 2;
+        margin: 0 auto;
+    }
+
+    .active-computer {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        transition: all 0.3s ease;
     }
 
     .active-skin {
         width: 200px;
         height: 200px;
         object-fit: contain;
-        margin-bottom: 15px;
     }
 
-    .skin-info {
+    .items-info {
+        padding: 0 20px 20px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .skin-info,
+    .computer-info {
         text-align: center;
-        width: 100%;
     }
 
     .skin-name {
@@ -168,10 +248,6 @@
         font-size: 0.8rem;
     }
 
-    .skin-id {
-        color: var(--hacker-accent);
-    }
-
     .skin-price {
         color: #ffff00;
     }
@@ -185,6 +261,8 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         border-radius: 0;
+        border: none;
+        cursor: pointer;
     }
 
     .use-btn {
@@ -218,7 +296,7 @@
         }
 
         .current-skin-section {
-            flex: 0 0 auto;
+            width: 100%;
         }
 
         .skins-grid {
@@ -227,19 +305,49 @@
     }
 
     @media (max-width: 768px) {
-        .skins-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        .character-computer-container {
+            height: 180px;
         }
 
         .active-skin {
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
+        }
+
+        .active-computer {
+            width: 90px;
+            height: 90px;
+            left: 10px;
+        }
+
+        .skins-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         }
     }
 
     @media (max-width: 480px) {
         .skin-store-container {
             padding: 10px;
+        }
+
+        .character-computer-container {
+            height: 150px;
+            padding: 10px;
+        }
+
+        .active-skin {
+            width: 120px;
+            height: 120px;
+        }
+
+        .active-computer {
+            width: 70px;
+            height: 70px;
+            left: 5px;
+        }
+
+        .items-info {
+            padding: 0 10px 10px 10px;
         }
 
         .skins-grid {
@@ -257,4 +365,5 @@
         }
     }
 </style>
+
 {% endblock %}
