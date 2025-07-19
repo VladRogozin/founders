@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚀 Ракетная игра: Сопротивление воздуха</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .left {
+      width: 50%;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #ff7e5f, #feb47b, #ffd89b, #a1c4fd, #6a93cb);
+      display: flex;
+      justify-content: center;
+    }
+    .right {
+      width: 50%;
+      padding: 20px;
+      background: #f8f9fa;
+      overflow-y: auto;
+    }
+    .rocket-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .rocket {
+      width: 130px;
+      height: 200px;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: bottom 0.1s linear, left 0.1s ease-out, transform 0.3s ease-in-out;
+      z-index: 10;
+    }
+    .rocket img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .explosion {
+      position: absolute;
+      font-size: 60px;
+      display: none;
+      z-index: 20;
+      animation: explode 1s ease-out forwards;
+    }
+    @keyframes explode {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    .cloud {
+      position: absolute;
+      font-size: 40px;
+      opacity: 0.8;
+      z-index: 5;
+      animation: cloudMove linear infinite;
+    }
+    .planet {
+      position: absolute;
+      font-size: 30px;
+      top: 20px;
+      z-index: 1;
+    }
+    @keyframes cloudMove {
+      from { transform: translateX(-100px); }
+      to { transform: translateX(calc(100vw + 100px)); }
+    }
+    .ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 60px;
+      background: linear-gradient(to right, #8B4513, #A0522D, #8B4513);
+      z-index: 2;
+    }
+    .launch-pad {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 20px;
+      background: #555;
+      z-index: 3;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ced4da;
+    }
+    .params, .result {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 15px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      white-space: pre-wrap;
+    }
+    .btn {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    .rotate {
+      animation: rotate 0.5s linear infinite;
+    }
+    @keyframes rotate {
+      from { transform: translateX(-50%) rotate(0deg); }
+      to { transform: translateX(-50%) rotate(360deg); }
+    }
+    .shake {
+      animation: shake 0.5s linear infinite;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(-50%) rotate(-5deg); }
+      50% { transform: translateX(-50%) rotate(5deg); }
+    }
+    .modal-content {
+      padding: 20px;
+    }
+    .info-table {
+      width: 100%;
+      margin: 15px 0;
+      border-collapse: collapse;
+    }
+    .info-table th, .info-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .info-table th {
+      background-color: #f2f2f2;
+    }
+    .info-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .dropdown-menu {
+      padding: 10px;
+      min-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Модальное окно с информацией -->
+  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="infoModalLabel">Научная информация о запуске ракеты</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h4>Руководство по успешному запуску ракеты</h4>
+
+          <h5 class="mt-4">1. Количество двигателей</h5>
+          <table class="info-table">
+            <tr>
+              <th>Сила ветра (м/с)</th>
+              <th>Требуемое количество двигателей</th>
+            </tr>
+            <tr>
+              <td>0-5</td>
+              <td>1 двигатель</td>
+            </tr>
+            <tr>
+              <td>6-15</td>
+              <td>2 двигателя</td>
+            </tr>
+            <tr>
+              <td>16+</td>
+              <td>3 двигателя</td>
+            </tr>
+          </table>
+
+          <h5 class="mt-4">2. Топливная система</h5>
+          <p>Количество топлива должно быть не менее 80% от массы ракеты. Формула расчета:</p>
+          <p><code>Минимальное топливо = Масса ракеты × 0.8</code></p>
+          <p>Рекомендуемое значение: <code>Масса ракеты × 0.9</code></p>
+
+          <h5 class="mt-4">3. Температурные системы</h5>
+          <table class="info-table">
+            <tr>
+              <th>Температура (°C)</th>
+              <th>Требуемые системы</th>
+            </tr>
+            <tr>
+              <td>≤ -5</td>
+              <td>1 система нагрева</td>
+            </tr>
+            <tr>
+              <td>-4 до 15</td>
+              <td>Нет требований</td>
+            </tr>
+            <tr>
+              <td>16 до 30</td>
+              <td>1 охлаждающая система</td>
+            </tr>
+            <tr>
+              <td>31+</td>
+              <td>2 охлаждающие системы</td>
+            </tr>
+          </table>
+
+          <h5 class="mt-4">4. Сопротивление воздуха</h5>
+          <p>Формула расчета сопротивления воздуха:</p>
+          <p><code>F = 0.5 × C × A × ρ × v²</code></p>
+          <p>Где:</p>
+          <ul>
+            <li><strong>C</strong> - коэффициент сопротивления (0.75)</li>
+            <li><strong>A</strong> - площадь миделя ракеты (2.5 м²)</li>
+            <li><strong>ρ</strong> - плотность воздуха (1.225 кг/м³)</li>
+            <li><strong>v</strong> - скорость ветра (м/с)</li>
+          </ul>
+          <p>Ваш расчет должен отличаться от ожидаемого не более чем на 10%.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="left">
+    <div class="rocket-container">
+      <div class="ground"></div>
+      <div class="launch-pad"></div>
+      <div id="rocket" class="rocket">
+        <img src="https://static.vecteezy.com/system/resources/thumbnails/019/045/384/small/rocket-icon-simple-start-up-sign-and-symbol-png.png" alt="Rocket" />
+      </div>
+      <div id="explosion" class="explosion">💥</div>
+      <div id="clouds-container"></div>
+      <div id="planets-container"></div>
+    </div>
+  </div>
+
+  <div class="right">
+    <h2 class="mb-4">🚀 Ракетная игра</h2>
+
+    <div class="d-flex align-items-center mb-3">
+      <button class="btn btn-primary me-2" onclick="generateConditions()">Сгенерировать условия</button>
+
+      <div class="dropdown">
+        <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+          Быстрые подсказки
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <li><strong>Двигатели:</strong> 1 (ветер 0-5), 2 (6-15), 3 (16+)</li>
+          <li><strong>Топливо:</strong> ≥ масса × 0.8</li>
+          <li><strong>Охлаждение:</strong> 1 (16-30°C), 2 (31+°C)</li>
+          <li><strong>Нагрев:</strong> 1 (≤ -5°C)</li>
+          <li><hr class="dropdown-divider"></li>
+          <li><button class="btn btn-sm btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#infoModal">Подробная информация</button></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="params" id="params"></div>
+
+    <textarea id="userCode">function getRocketConfig(mass, wind, temperature, dragExpected) {
+  let engines = 1;
+  let fuel = 0;
+  let coldSystem = 0;
+  let heatSystem = 0;
+
+  // Сопротивление воздуха: F = 0.5 * C * A * rho * v^2
+  const C = 0.75; // коэффициент сопротивления
+  const A = 2.5; // площадь мидиа-ракеты
+  const rho = 1.225; // плотность воздуха (кг/м^3)
+
+  return {
+    fuel,
+    windRocket: engines,
+    coldSystem,
+    heatSystem,
+    airResistance: drag
+  };
+}</textarea>
+
+    <button class="btn btn-success" onclick="launch()">Запустить ракету</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const rocket = document.getElementById("rocket");
+    const explosion = document.getElementById("explosion");
+    const paramsEl = document.getElementById("params");
+    const resultEl = document.getElementById("result");
+    const cloudsContainer = document.getElementById("clouds-container");
+    const planetsContainer = document.getElementById("planets-container");
+
+    let mass = null, wind = null, temperature = null, dragExpected = null, launchInterval = null;
+
+    // Планеты для фона
+    const planets = ['🪐', '🌟'];
+
+    function createPlanets() {
+      planetsContainer.innerHTML = '';
+      const planetsCount = 3 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < planetsCount; i++) {
+        const planet = document.createElement('div');
+        planet.className = 'planet';
+        planet.textContent = planets[Math.floor(Math.random() * planets.length)];
+        planet.style.left = `${10 + Math.random() * 80}%`;
+        planet.style.opacity = `${0.5 + Math.random() * 0.5}`;
+        planetsContainer.appendChild(planet);
+      }
+    }
+
+    function createClouds() {
+      cloudsContainer.innerHTML = '';
+      if (!wind) return;
+
+      const cloudCount = Math.min(10, Math.floor(wind / 3) + 1);
+      for (let i = 0; i < cloudCount; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'cloud';
+        cloud.textContent = '☁️';
+        cloud.style.top = `${20 + Math.random() * 50}%`;
+        cloud.style.left = `${Math.random() * 100}%`;
+        cloud.style.animationDuration = `${30 - wind + Math.random() * 10}s`;
+        cloud.style.animationDelay = `-${Math.random() * 20}s`;
+        cloudsContainer.appendChild(cloud);
+      }
+    }
+
+    function generateConditions() {
+      mass = (Math.floor(Math.random() * 10) + 1) * 1000;
+      wind = Math.floor(Math.random() * 26);
+      temperature = Math.floor(Math.random() * 61) - 15;
+
+      const C = 0.75, A = 2.5, rho = 1.225, v = wind;
+      dragExpected = 0.5 * C * A * rho * v * v;
+
+      stopAnimation();
+      rocket.style.bottom = "0px";
+      rocket.style.left = "50%";
+      rocket.style.transform = "translateX(-50%)";
+      rocket.style.display = "block";
+      rocket.className = "rocket";
+      explosion.style.display = "none";
+
+      createPlanets();
+      createClouds();
+
+      paramsEl.textContent = `Вес ракеты: ${mass} кг\nСила ветра: ${wind} м/с\nТемпература: ${temperature} °C`;
+      resultEl.textContent = "";
+    }
+
+    function stopAnimation() {
+      clearInterval(launchInterval);
+    }
+
+    function launch() {
+      stopAnimation();
+      rocket.style.left = "50%";
+      rocket.style.bottom = "0px";
+      rocket.style.transform = "translateX(-50%)";
+      rocket.style.display = "block";
+      rocket.className = "rocket";
+
+      if (!mass || wind === null || temperature === null) {
+        resultEl.textContent = "Сначала сгенерируйте условия!";
+        return;
+      }
+
+      const userCode = document.getElementById("userCode").value;
+      try {
+        const userFunc = new Function("mass", "wind", "temperature", "dragExpected", userCode + "\n return getRocketConfig(mass, wind, temperature, dragExpected);");
+        const config = userFunc(mass, wind, temperature, dragExpected);
+        const { fuel, windRocket, coldSystem = 0, heatSystem = 0, airResistance } = config;
+
+        if ([fuel, windRocket, airResistance].some(v => typeof v !== "number")) {
+          resultEl.textContent = "Функция должна вернуть fuel, windRocket, airResistance (все числа)";
+          return;
+        }
+
+        if (fuel < mass * 0.8) return resultEl.textContent = `Недостаточно топлива. Нужно минимум ${Math.ceil(mass * 0.8)} л.`;
+
+        const requiredEngines = wind > 15 ? 3 : wind > 5 ? 2 : 1;
+        if (windRocket < requiredEngines) return driftRocket("Недостаточно двигателей для такого ветра! Ракету сдуло! 💨");
+
+        if (temperature > 30 && coldSystem < 2) return explodeRocket("Слишком жарко! Ракета перегрелась и взорвалась!");
+        if (temperature > 15 && coldSystem < 1) return explodeRocket("Нужна охлаждающая система! Взрыв!");
+        if (temperature <= -5 && heatSystem < 1) return explodeRocket("Слишком холодно! Нужна система нагрева. Взрыв!");
+
+        if (Math.abs(airResistance - dragExpected) > dragExpected * 0.1) {
+          return gravityFail("Сопротивление воздуха рассчитано неверно! Ракета не справляется и падает.");
+        }
+
+        resultEl.innerHTML = `<span class="text-success">🚀 Успешный запуск!</span>\nТопливо: ${fuel} л\nДвигатели: ${windRocket}`;
+        animateRocket();
+
+      } catch (e) {
+        resultEl.textContent = "Ошибка в вашей функции: " + e.message;
+      }
+    }
+
+    function animateRocket() {
+      let height = 0;
+      launchInterval = setInterval(() => {
+        height += 5;
+        rocket.style.bottom = height + "px";
+        if (height > window.innerHeight) clearInterval(launchInterval);
+      }, 30);
+    }
+
+    function driftRocket(msg) {
+      resultEl.textContent = msg;
+      let height = 0, left = 50;
+      rocket.classList.add('rotate');
+      launchInterval = setInterval(() => {
+        height += 4; left += 1.5;
+        rocket.style.bottom = height + "px";
+        rocket.style.left = left + "%";
+        if (left > 100 || height > window.innerHeight / 2) clearInterval(launchInterval);
+      }, 50);
+    }
+
+    function explodeRocket(message) {
+      resultEl.textContent = message;
+      let height = 0, maxHeight = window.innerHeight / 2;
+      rocket.classList.add('shake');
+      launchInterval = setInterval(() => {
+        height += 5;
+        rocket.style.bottom = height + "px";
+        if (height >= maxHeight) {
+          clearInterval(launchInterval);
+          rocket.style.display = "none";
+          explosion.style.display = "block";
+          explosion.style.left = rocket.style.left;
+          explosion.style.bottom = rocket.style.bottom;
+          setTimeout(() => {
+            explosion.style.display = "none";
+            rocket.style.bottom = "0px";
+            rocket.style.left = "50%";
+            rocket.style.transform = "translateX(-50%)";
+            rocket.style.display = "block";
+            rocket.className = "rocket";
+          }, 1000);
+        }
+      }, 30);
+    }
+
+    function gravityFail(message) {
+      resultEl.textContent = message;
+      let height = 0, up = true;
+      launchInterval = setInterval(() => {
+        height += up ? 4 : -4;
+        if (height > 150) up = false;
+        if (height <= 0) {
+          clearInterval(launchInterval);
+          rocket.classList.add('shake');
+          setTimeout(() => rocket.className = "rocket", 500);
+        }
+        rocket.style.bottom = height + "px";
+      }, 30);
+    }
+
+    // Инициализация
+    generateConditions();
+  </script>
+</body>
+</html>

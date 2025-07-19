@@ -55,3 +55,6 @@ def task_list(request):
 def pentagon(request):
     return render(request, 'tasks/pentagon_page.html')
 
+def rocket_start(request):
+    return render(request, 'tasks/rocket_start.html')
+

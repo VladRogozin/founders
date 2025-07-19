@@ -1,66 +1,69 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container-fluid mt-3">
-    <div class="row">
+<div class="container-fluid mt-3 hacker-container">
+    <div class="row g-3">
         <!-- Список заданий -->
-        <div class="col-md-4">
-            <div class="hacker-list-group">
+        <div class="col-lg-3 col-md-4">
+            <div class="hacker-list-group sticky-lg-top" style="top: 20px;">
                 <div class="hacker-list-header terminal-effect">> Доступные задания_</div>
                 {% for task in tasks %}
                     <a href="?task_id={{ task.id }}"
-                       class="hacker-list-item {% if selected_task and selected_task.id == task.id %}active{% endif %}">
-                        > {{ task.title }} [{{ task.get_difficulty_display }}]
+                       class="hacker-list-item {% if selected_task and selected_task.id == task.id %}active{% endif %} d-flex justify-content-between align-items-center">
+                        <span>
+                            > {{ task.title }} [{{ task.get_difficulty_display }}]
+                        </span>
                         {% if task.id in completed_task_ids %}
-                            <span class="hacker-btn">Выполнено</span>
+                            <span class="hacker-badge completed-badge">✓</span>
                         {% else %}
-                            <span class="hacker-btn-danger">Не выполнено</span>
+                            <span class="hacker-badge incomplete-badge">✗</span>
                         {% endif %}
                     </a>
+                {% empty %}
+                    <div class="hacker-list-item text-muted">> Нет доступных заданий_</div>
                 {% endfor %}
             </div>
         </div>
 
         <!-- Правая часть: Задание / Теория -->
-        <div class="col-md-8">
+        <div class="col-lg-9 col-md-8">
             {% if selected_task %}
                 <div class="hacker-task-container">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h3 class="mb-0">{{ selected_task.title }}_</h3>
-                      <h4 class="mb-0">Награда: {{ selected_task.reward }}₿</h4>
-                    </div>
-                    <div class="hacker-task-meta mb-2">
-                        <span class="hacker-badge">Сложность: {{ selected_task.get_difficulty_display }}</span>
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
+                        <h2 class="mb-0 hacker-task-title">{{ selected_task.title }}_</h2>
+                        <div class="d-flex flex-column flex-sm-row align-items-end align-items-md-center gap-2">
+                            <span class="hacker-badge">Сложность: {{ selected_task.get_difficulty_display }}</span>
+                            <span class="hacker-reward">Награда: {{ selected_task.reward }}₿</span>
+                        </div>
                     </div>
 
                     <!-- Кнопки переключения -->
                     {% if related_theory %}
-                    <div class="mb-3">
-                        <button class="hacker-btn btn-sm" onclick="showTab('task')">Задание</button>
-                        <button class="hacker-btn btn-sm" onclick="showTab('theory')">Теория</button>
+                    <div class="mb-3 d-flex gap-2 flex-wrap">
+                        <button class="hacker-btn hacker-tab-btn active" data-tab="task">Задание</button>
+                        <button class="hacker-btn hacker-tab-btn" data-tab="theory">Теория</button>
                     </div>
                     {% endif %}
 
-
                     <!-- Контейнер Задания -->
-                    <div id="task-tab" class="task-tab container py-3">
-                        <div class="hacker-task-content d-flex flex-column flex-md-row align-items-start gap-3 mb-4">
+                    <div id="task-tab" class="hacker-tab-content active">
+                        <div class="hacker-task-content d-flex flex-column {% if selected_task.image %}flex-md-row{% endif %} align-items-start gap-3 mb-4">
                             {% if selected_task.image %}
-                            <div class="hacker-media text-center">
+                            <div class="hacker-media text-center flex-shrink-0" style="max-width: 300px;">
                                 <img src="{{ selected_task.image.url }}"
                                      class="img-fluid rounded shadow-sm"
-                                     style="max-width: 250px; height: auto;"
-                                     alt="Task Image">
+                                     alt="Task Image"
+                                     loading="lazy">
                             </div>
                             {% endif %}
 
-                            <div class="hacker-question flex-grow-1">
-                              <pre class="mb-0" style="white-space: pre-wrap;">&gt; {{ selected_task.question }}</pre>
+                            <div class="flex-grow-1">
+                              <pre class="hacker-question mb-0">&gt; {{ selected_task.question }}</pre>
                             </div>
                         </div>
 
                         {% if selected_task.video %}
-                        <div class="hacker-media mb-3">
-                            <video controls class="w-100 rounded shadow-sm">
+                        <div class="hacker-media mb-3 ratio ratio-16x9">
+                            <video controls class="rounded shadow-sm">
                                 <source src="{{ selected_task.video.url }}">
                                 Ваш браузер не поддерживает видео.
                             </video>
@@ -87,6 +90,9 @@
                                             {{ field.label }}
                                         </label>
                                         {{ field }}
+                                        {% if field.help_text %}
+                                            <div class="form-text">{{ field.help_text }}</div>
+                                        {% endif %}
                                         {% if field.errors %}
                                             <div class="form-error">
                                                 {{ field.errors }}
@@ -94,40 +100,34 @@
                                         {% endif %}
                                     </div>
                                 {% endfor %}
-                                <button type="submit" class="hacker-btn hacker-btn-submit">
+                                <button type="submit" class="hacker-btn hacker-btn-submit w-100 w-md-auto">
                                     &gt; Отправить решение_
                                 </button>
                             </form>
                         </div>
-
                     </div>
 
+                    <!-- Контейнер Теории -->
+                    {% if related_theory %}
+                    <div id="theory-tab" class="hacker-tab-content">
+                        <h3 class="mb-3">&gt; Теория: {{ related_theory.title }}</h3>
+                        <div class="hacker-theory-content">
+                            {% if related_theory.image %}
+                            <div class="hacker-media mb-3 text-center">
+                                <img src="{{ related_theory.image.url }}"
+                                     alt="Theory Image"
+                                     class="img-fluid rounded shadow-sm"
+                                     loading="lazy"
+                                     style="max-height: 300px; width: auto;">
+                            </div>
+                            {% endif %}
 
-            {% if related_theory %}
-            <div id="theory-tab" class="container py-4" style="display: none;">
-                <h4 class="mb-3">&gt; Теория: {{ related_theory.title }}</h4>
-                <div class="row align-items-start">
-                    {% if related_theory.image %}
-                    <div class="col-md-4 mb-3 text-center">
-                        <img src="{{ related_theory.image.url }}"
-                             alt="Theory Image"
-                             class="img-fluid rounded shadow-sm"
-                             style="max-width: 100%; height: auto;">
-                    </div>
-                    {% endif %}
-
-                    <div class="col-md-8">
-                        <!-- Текст с поддержкой разметки -->
-                        <div class="theory-text">
-                            {{ related_theory.text|linebreaks }}
+                            <div class="theory-content">
+                                {{ related_theory.text|linebreaks }}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            {% endif %}
-
-
-
+                    {% endif %}
                 </div>
             {% else %}
                 <div class="hacker-placeholder terminal-effect">
@@ -139,75 +139,120 @@
 </div>
 
 <style>
+    :root {
+        --hacker-green: #00ff00;
+        --hacker-dark: #121212;
+        --hacker-light: #1a1a1a;
+        --hacker-lightest: #222;
+    }
+
+    .hacker-container {
+        max-width: 1800px;
+    }
+
     .hacker-list-group {
         background-color: var(--hacker-light);
         border: 1px solid var(--hacker-green);
-        border-radius: 0;
+        border-radius: 4px;
+        overflow: hidden;
     }
 
     .hacker-list-header {
         background-color: rgba(0, 255, 0, 0.1);
         color: var(--hacker-green);
-        padding: 10px 15px;
+        padding: 12px 16px;
         border-bottom: 1px solid var(--hacker-green);
         font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        font-size: 1.1rem;
     }
 
     .hacker-list-item {
-        display: block;
-        padding: 12px 15px;
+        display: flex;
+        padding: 12px 16px;
         color: var(--hacker-green);
         text-decoration: none;
         border-left: 3px solid transparent;
-        transition: all 0.3s;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
     }
 
     .hacker-list-item:hover {
         background-color: rgba(0, 255, 0, 0.05);
         border-left: 3px solid var(--hacker-green);
-        color: white;
     }
 
     .hacker-list-item.active {
-        background-color: rgba(0, 255, 0, 0.1);
+        background-color: rgba(0, 255, 0, 0.15);
         border-left: 3px solid var(--hacker-green);
-        color: white;
         font-weight: bold;
+    }
+
+    .hacker-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 6px;
+        font-size: 0.8rem;
+        border-radius: 12px;
+        min-width: 24px;
+        height: 24px;
+    }
+
+    .completed-badge {
+        background-color: rgba(0, 255, 0, 0.2);
+        color: var(--hacker-green);
+        border: 1px solid var(--hacker-green);
+    }
+
+    .incomplete-badge {
+        background-color: rgba(255, 0, 0, 0.2);
+        color: #ff5555;
+        border: 1px solid #ff5555;
     }
 
     .hacker-task-container {
         background-color: var(--hacker-light);
         border: 1px solid var(--hacker-green);
-        padding: 20px;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        border-radius: 4px;
+        padding: 24px;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
     }
 
-    .hacker-task-meta {
-        margin-bottom: 20px;
-    }
-
-    .hacker-badge {
-        display: inline-block;
-        padding: 3px 8px;
-        background-color: rgba(0, 255, 0, 0.1);
+    .hacker-task-title {
         color: var(--hacker-green);
-        border: 1px solid var(--hacker-green);
-        font-size: 0.8rem;
+        font-size: 1.8rem;
+        word-break: break-word;
+    }
+
+    .hacker-reward {
+        color: gold;
+        font-weight: bold;
+        white-space: nowrap;
     }
 
     .hacker-media {
         margin: 15px 0;
         border: 1px solid var(--hacker-green);
-        padding: 5px;
+        border-radius: 4px;
+        overflow: hidden;
+        background-color: black;
     }
 
-    .hacker-code {
-        background-color: #000;
+    .hacker-media img {
+        max-height: 400px;
+        width: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .hacker-question {
+        white-space: pre-wrap;
+        font-family: 'Courier New', monospace;
         color: var(--hacker-green);
-        padding: 15px;
-        border: 1px solid var(--hacker-green);
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 16px;
+        border-radius: 4px;
+        border-left: 3px solid var(--hacker-green);
         overflow-x: auto;
     }
 
@@ -217,90 +262,156 @@
         margin: 25px 0;
     }
 
+    .hacker-tab-content {
+        display: none;
+    }
+
+    .hacker-tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .hacker-tab-btn {
+        transition: all 0.2s ease;
+        border-radius: 4px;
+    }
+
+    .hacker-tab-btn.active {
+        background-color: rgba(0, 255, 0, 0.2);
+        box-shadow: 0 0 5px var(--hacker-green);
+    }
+
+    .hacker-answer-form input,
     .hacker-answer-form textarea,
-    .hacker-answer-form input {
-        background-color: var(--hacker-light) !important;
+    .hacker-answer-form select {
+        background-color: var(--hacker-dark) !important;
         color: var(--hacker-green) !important;
         border: 1px solid var(--hacker-green) !important;
         font-family: 'Courier New', monospace !important;
+        padding: 10px 12px !important;
+        border-radius: 4px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .hacker-answer-form input:focus,
+    .hacker-answer-form textarea:focus,
+    .hacker-answer-form select:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.3) !important;
+        border-color: var(--hacker-green) !important;
+    }
+
+    .hacker-answer-form label {
+        color: var(--hacker-green);
+        margin-bottom: 6px;
+        font-size: 0.95rem;
+    }
+
+    .form-text {
+        color: #aaa;
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+
+    .form-error {
+        color: #ff5555;
+        font-size: 0.85rem;
+        margin-top: 4px;
     }
 
     .hacker-btn-submit {
-        margin-top: 15px;
-        padding: 8px 25px;
+        padding: 10px 24px;
+        transition: all 0.2s ease;
+        border-radius: 4px;
+    }
+
+    .hacker-btn-submit:hover {
+        background-color: rgba(0, 255, 0, 0.2);
+        transform: translateY(-1px);
     }
 
     .hacker-placeholder {
         background-color: var(--hacker-light);
         border: 1px dashed var(--hacker-green);
-        padding: 30px;
+        padding: 40px 20px;
         text-align: center;
+        color: var(--hacker-green);
+        border-radius: 4px;
+    }
+
+    .theory-content {
+        line-height: 1.6;
+    }
+
+    .theory-content pre {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 16px;
+        border-radius: 4px;
+        overflow-x: auto;
+        border-left: 3px solid var(--hacker-green);
+    }
+
+    .theory-content code {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
         color: var(--hacker-green);
     }
 
-.theory-text pre {
-    background-color: #f5f5f5;
-    padding: 1em;
-    overflow-x: auto;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95em;
-}
+    @media (max-width: 768px) {
+        .hacker-task-container {
+            padding: 16px;
+        }
 
-.theory-text code {
-    background-color: #f0f0f0;
-    padding: 0.2em 0.4em;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-}
+        .hacker-task-title {
+            font-size: 1.5rem;
+        }
 
+        .hacker-list-group {
+            margin-bottom: 20px;
+        }
+    }
 
- .hacker-answer-form input,
-.hacker-answer-form textarea,
-.hacker-answer-form select {
-    background-color: #000;
-    color: #00ff00;
-    border: 1px solid #00ff00;
-    font-family: 'Courier New', monospace;
-    padding: 8px;
-    width: 100%;
-    box-sizing: border-box;
-    border-radius: 0;
-    transition: 0.3s;
-}
-
-.hacker-answer-form input:focus,
-.hacker-answer-form textarea:focus,
-.hacker-answer-form select:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
-    border-color: white;
-}
-
-.hacker-answer-form label {
-    color: #00ff00;
-    margin-bottom: 0.25rem;
-    display: block;
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-
-.form-error {
-    color: red;
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
-}
-
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
 </style>
 
-<!-- JS для переключения вкладок -->
 <script>
-    function showTab(tab) {
-        document.getElementById('task-tab').style.display = (tab === 'task') ? 'block' : 'none';
-        document.getElementById('theory-tab').style.display = (tab === 'theory') ? 'block' : 'none';
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Табы
+        const tabButtons = document.querySelectorAll('.hacker-tab-btn');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+
+                // Убираем активные классы у всех кнопок и табов
+                document.querySelectorAll('.hacker-tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('.hacker-tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Добавляем активные классы к выбранным элементам
+                this.classList.add('active');
+                document.getElementById(tabId + '-tab').classList.add('active');
+            });
+        });
+
+        // Автоматическое увеличение высоты textarea
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+    });
 </script>
-
-
-
 {% endblock %}
